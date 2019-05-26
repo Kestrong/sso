@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="logLevel" source="logging.level"/>
+    <springProperty scope="context" name="logPath" source="logging.path"/>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <Target>System.out</Target>
+        <encoder>
+            <pattern>[%d] [%p] [%t] [%F:%L] - %m%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <logger name="org.apache.ibatis" level="ERROR"/>
+    <logger name="com.xjbg" level="DEBUG"/>
+    <logger name="org.mybatis.spring" level="ERROR"/>
+    <logger name="com.baomidou.mybatisplus" level="ERROR"/>
+    <logger name="org.springframework" level="ERROR"/>
+
+    <appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logPath}/sso-api.log</File>
+        <Append>true</Append>
+        <encoder>
+            <pattern>[%d] [%p] [%t] [%F:%L] - %m%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/sso-api.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ErrorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logPath}/sso-api-error.log</File>
+        <encoder>
+            <pattern>[%d] [%p] [%t] [%F:%L] - %m%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/sso-api-error.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <root level="${logLevel}">
+        <springProfile name="local">
+            <appender-ref ref="Console"/>
+        </springProfile>
+        <appender-ref ref="LogFile"/>
+        <appender-ref ref="ErrorFile"/>
+    </root>
+
+</configuration>

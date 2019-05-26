@@ -1,0 +1,39 @@
+env:
+  env: local
+  resourceMapping:
+    /html/**: classpath:/static/html/
+    /script/**: classpath:/static/script/
+    /styles/**: classpath:/static/styles/
+
+spring:
+  thymeleaf:
+    cache: false
+  # =====================db==================
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: KMVnZOXdDGaJJngMZZbGUKYUWLHSnIN8xekJwpAVxMZrL+41Zq+93SrVq4rG5yESUxoGhyD6ffqDpx8E+XiPO6Rap/5S71W4B52ztvZH3SaAc009NSy7ic1yCy1p2wngUlZcg8JjQu4lBNiQxtMY6BTL9DqHzwX7nP84Agd5/Rg=
+    username: e399BChuRMZuWFTFtgJ/sA==
+    password: 8lL0xDAO0DPgHEp21PDxbA==
+  # =====================redis==================
+  redis:
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    password: fZaniJmprjwT7S3+wOGUoQ==
+    timeout: 10000
+    pool:
+      max-active: 8
+      max-idle: 8
+      max-wait: 10000
+      min-idle: 4
+      
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8260/eureka/
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      zone: kesc
+      cluster: sso-server

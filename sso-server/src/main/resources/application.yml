@@ -1,0 +1,64 @@
+server:
+  context-path: /sso-server
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,text/javascript,text/css,application/javascript
+    min-response-size: 10240
+  session:
+    timeout: 1800
+
+logging:
+  path: ./logs/sso/@profiles.active@
+  level: info
+  config: classpath:logback-spring.xml
+
+spring:
+  # =====================resource==================
+  resources:
+    cache-period: 31536000
+  # =====================http==================
+  http:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+  # =====================application==================
+  application:
+    name: sso-server
+  #======================datasource=======================
+  datasource:
+    statLoginName: pA3ZJgzsBt9wogmZcPq9pg==
+    statLoginPassword: pA3ZJgzsBt9wogmZcPq9pg==
+    # 下面为连接池的补充设置，应用到数据源中
+    dbType: mysql
+    # 初始化大小，最小，最大
+    initialSize: 5
+    minIdle: 5
+    maxActive: 30
+    # 配置获取连接等待超时的时间
+    maxWait: 10000
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 120000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 120000
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    removeAbandoned: false
+    removeAbandonedTimeoutMillis: 60000
+    logAbandoned: true
+    resetStatEnable: false
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,slf4j
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=1000
+    transactionQueryTimeout: 60
+    queryTimeout: 15
+
+aes:
+  s-key: 1234567890abcdef
+  iv-parameter: fedcba0987654321
+

@@ -1,0 +1,42 @@
+server:
+  context-path: /
+
+env:
+  env: prd
+  resourceMapping:
+    /html/**: classpath:/static/html/
+    /script/**: classpath:/static/dist/script/
+    /styles/**: classpath:/static/dist/styles/
+
+spring:
+  thymeleaf:
+    cache: true
+  # =====================db==================
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: your-url
+    username: your-name
+    password: your-password
+  # =====================redis==================
+  redis:
+      database: 1
+      host: your-host
+      port: 6379
+      password: your-password
+      timeout: 10000
+      pool:
+        max-active: 8
+        max-idle: 8
+        max-wait: 10000
+        min-idle: 4
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: default-zone
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      zone: zone
+      cluster: cluster
