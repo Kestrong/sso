@@ -1,5 +1,6 @@
 package com.xjbg.sso.client.filter;
 
+import com.xjbg.sso.client.ConfigKeyConstants;
 import com.xjbg.sso.client.api.CasApi;
 import com.xjbg.sso.core.dto.TicketValidationDTO;
 import com.xjbg.sso.core.response.BaseResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -25,6 +27,7 @@ import java.io.IOException;
 @Slf4j
 public class CasValidationFilter extends AbstractCasFilter {
     private CasApi casApi;
+    private boolean redirectAfterSuccess = false;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -32,6 +35,10 @@ public class CasValidationFilter extends AbstractCasFilter {
         ServletContext context = filterConfig.getServletContext();
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(context);
         casApi = ac.getBean(CasApi.class);
+        String redirectAfterSuccess = filterConfig.getInitParameter(ConfigKeyConstants.REDIRECT_AFTER_SUCCESS_KEY);
+        if (StringUtil.isNotBlank(redirectAfterSuccess)) {
+            this.redirectAfterSuccess = Boolean.valueOf(redirectAfterSuccess);
+        }
     }
 
     @Override
@@ -39,8 +46,9 @@ public class CasValidationFilter extends AbstractCasFilter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
         final String ticket = retrieveTicketFromRequest(request);
-
-        if (StringUtil.isNotBlank(ticket)) {
+        final HttpSession session = request.getSession(false);
+        boolean loginFlag = session != null && session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION) != null;
+        if (!loginFlag && StringUtil.isNotBlank(ticket)) {
             log.debug("Attempting to validate ticket: {}", ticket);
             try {
                 String serviceUrl = constructServiceUrl(request, response);
@@ -52,12 +60,11 @@ public class CasValidationFilter extends AbstractCasFilter {
                 }
                 log.debug("Successfully authenticated user: {}", validateResponse.getData().getUsername());
 
-                request.setAttribute(CONST_CAS_ASSERTION, validateResponse.getData().getUsername());
-
-                request.getSession().setAttribute(CONST_CAS_ASSERTION, validateResponse.getData().getUsername());
-
-                log.debug("Redirecting after successful ticket validation.");
-                CommonUtil.sendRedirect(response, serviceUrl);
+                super.setConstCasAssertion(request, validateResponse.getData().getUsername());
+                if (redirectAfterSuccess) {
+                    log.debug("Redirecting after successful ticket validation.");
+                    CommonUtil.sendRedirect(response, serviceUrl);
+                }
                 return;
             } catch (final Exception e) {
                 log.error(e.getMessage(), e);

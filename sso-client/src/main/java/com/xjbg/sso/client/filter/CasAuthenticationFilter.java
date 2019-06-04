@@ -1,6 +1,7 @@
 package com.xjbg.sso.client.filter;
 
 import com.xjbg.sso.client.ConfigKeyConstants;
+import com.xjbg.sso.core.util.CollectionUtil;
 import com.xjbg.sso.core.util.CommonUtil;
 import com.xjbg.sso.core.util.StringUtil;
 import lombok.Getter;
@@ -13,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author kesc
@@ -22,18 +25,18 @@ import java.io.IOException;
 @Getter
 @Slf4j
 public class CasAuthenticationFilter extends AbstractCasFilter {
-    private boolean renew = false;
     private String casServerLoginUrl;
-    private String ignoreUrlPattern;
+    private List<String> ignoreUrlPatterns;
     private final AntPathMatcher ignorePathMatcher = new AntPathMatcher();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         casServerLoginUrl = filterConfig.getInitParameter(ConfigKeyConstants.CAS_SERVER_LOGIN_URL_KEY);
-        ignoreUrlPattern = filterConfig.getInitParameter(ConfigKeyConstants.IGNORE_URL_PATTERN_KEY);
-        String renewParameter = filterConfig.getInitParameter(ConfigKeyConstants.RENEW_KEY);
-        renew = StringUtil.isBlank(renewParameter) ? false : Boolean.valueOf(renewParameter);
+        String ignoreUrlPattern = filterConfig.getInitParameter(ConfigKeyConstants.IGNORE_URL_PATTERN_KEY);
+        if (StringUtil.isNotBlank(ignoreUrlPattern)) {
+            ignoreUrlPatterns = Arrays.asList(ignoreUrlPattern.split(","));
+        }
     }
 
     @Override
@@ -57,14 +60,14 @@ public class CasAuthenticationFilter extends AbstractCasFilter {
         }
         final String serviceUrl = constructServiceUrl(request, response);
         final String urlToRedirectTo = CommonUtil.constructRedirectUrl(this.casServerLoginUrl,
-                getProtocol().getServiceParameterName(), serviceUrl, this.renew);
+                getProtocol().getServiceParameterName(), serviceUrl);
         log.debug("redirecting to \"{}\"", urlToRedirectTo);
         CommonUtil.sendRedirect(response, urlToRedirectTo);
     }
 
 
     protected boolean isRequestUrlExcluded(final HttpServletRequest request) {
-        if (StringUtil.isBlank(ignoreUrlPattern)) {
+        if (CollectionUtil.isEmpty(ignoreUrlPatterns)) {
             return false;
         }
         final StringBuffer urlBuffer = request.getRequestURL();
@@ -72,6 +75,11 @@ public class CasAuthenticationFilter extends AbstractCasFilter {
             urlBuffer.append("?").append(request.getQueryString());
         }
         final String requestUri = urlBuffer.toString();
-        return ignorePathMatcher.match(ignoreUrlPattern, requestUri);
+        for (String pattern : ignoreUrlPatterns) {
+            if (ignorePathMatcher.match(pattern, requestUri)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

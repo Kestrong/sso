@@ -42,7 +42,7 @@ public class CommonUtil {
                                              final String service, final String serverNames, final String serviceParameterName,
                                              final String artifactParameterName, final boolean encode) {
         if (StringUtil.isNotBlank(service)) {
-            return encode ? StringUtil.substringBefore(response.encodeURL(service), ";") : service;
+            return encode ? response.encodeURL(service) : service;
         }
 
         final String serverName = findMatchingServerName(request, serverNames);
@@ -196,13 +196,12 @@ public class CommonUtil {
      * @param casServerLoginUrl    the CAS Server login url.
      * @param serviceParameterName the name of the parameter that defines the service.
      * @param serviceUrl           the actual service's url.
-     * @param renew                whether we should send renew or not.
      * @return the fully constructed redirect url.
      */
     public static String constructRedirectUrl(final String casServerLoginUrl, final String serviceParameterName,
-                                              final String serviceUrl, final boolean renew) {
+                                              final String serviceUrl) {
         return casServerLoginUrl + (casServerLoginUrl.contains("?") ? "&" : "?") + serviceParameterName + "="
-                + urlEncode(serviceUrl) + (renew ? "&renew=true" : "");
+                + urlEncode(serviceUrl);
     }
 
     public static void logoutRequest(String serviceUrl, String logoutRequestParam, String ticket) {

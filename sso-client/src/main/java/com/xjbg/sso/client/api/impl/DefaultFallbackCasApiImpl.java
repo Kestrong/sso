@@ -19,4 +19,16 @@ public class DefaultFallbackCasApiImpl implements CasApi {
         log.warn("remote service [CasApi.validate] is not available,return to fallback service");
         return new BaseResponse<>(new TicketValidationDTO(false));
     }
+
+    @Override
+    public BaseResponse<String> serviceTicket(String tgtId, String service) {
+        log.warn("remote service [CasApi.serviceTicket] is not available,return to fallback service");
+        return new BaseResponse<>();
+    }
+
+    @Override
+    public BaseResponse<String> proxyTicket(String tgtId, String service) {
+        log.warn("remote service [CasApi.proxyTicket] is not available,return to fallback service");
+        return new BaseResponse<>();
+    }
 }

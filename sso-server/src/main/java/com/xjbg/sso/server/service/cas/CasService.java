@@ -12,6 +12,7 @@ import com.xjbg.sso.server.cookie.CasCookieManager;
 import com.xjbg.sso.server.cookie.ICasCookieManager;
 import com.xjbg.sso.server.properties.CasProperties;
 import com.xjbg.sso.server.ticket.*;
+import com.xjbg.sso.server.util.WebContextUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;
@@ -51,56 +52,63 @@ public class CasService implements InitializingBean {
     private AuthenticationManager authenticationManager;
     @Autowired
     private AESOperator aesOperator;
-    private Protocol protocol = Protocol.CAS1;
     @Autowired
     private CasProperties casProperties;
-    /**
-     * if service url not present,will redirect to this url after login success
-     */
-    private String loginSuccessUrl = "login-success";
-    /**
-     * custom login url to redirect
-     */
-    private String customLoginUrl;
     private String logoutRequestParam = "logoutRequest";
+    private Protocol protocol = Protocol.CAS1;
 
     public CasService() {
     }
 
-    public String loginOrRedirect(HttpServletRequest request, HttpServletResponse response, boolean renew) {
-        TicketGrantingTicket tgt = getTgt(request, response, true, TicketGrantingTicketImpl.class);
-        if (!renew && tgt != null) {
-            ServiceTicket serviceTicket = grantServiceTicket(tgt, CommonUtil.safeGetParameter(request, protocol.getServiceParameterName()));
-            CommonUtil.sendRedirect(response, CommonUtil.constructTicketUrl(serviceTicket.getService(), protocol.getArtifactParameterName(), serviceTicket.getId()));
-        }
-        if (customLoginUrl != null) {
-            CommonUtil.sendRedirect(response, CommonUtil.constructRedirectUrl(customLoginUrl, protocol.getServiceParameterName(), CommonUtil.safeGetParameter(request, protocol.getServiceParameterName()), renew));
-        }
-        return LOGIN_VIEW;
+    public AuthenticationInfo authentication(UsernamePasswordCredentials credentials) {
+        return authenticationManager.doAuthenticate(credentials);
     }
 
-    public void login(UsernamePasswordCredentials credentials, HttpServletRequest request, HttpServletResponse response) {
-        AuthenticationInfo authenticationInfo = authenticationManager.doAuthenticate(credentials);
-        TicketGrantingTicket ticketGrantingTicket = grantingTicketFactory.create(authenticationInfo.getPrincipals(), expireInMills);
-        String service = CommonUtil.safeGetParameter(request, protocol.getServiceParameterName());
-        String urlToRedirect;
-        if (StringUtil.isNotBlank(service)) {
-            ServiceTicket serviceTicket = ticketGrantingTicket.grantServiceTicket(idGenerator.nextId(), service, serviceTicketExpireInMills);
-            cacheTemplate.valueSet(serviceTicket.getId(), serviceTicket, serviceTicketExpireInMills, TimeUnit.MILLISECONDS);
-            urlToRedirect = CommonUtil.constructTicketUrl(service, protocol.getArtifactParameterName(), serviceTicket.getId());
-        } else {
-            urlToRedirect = loginSuccessUrl;
+    public void loginOrRedirect() {
+        TicketGrantingTicket tgt = getTgt(true, TicketGrantingTicketImpl.class);
+        if (tgt == null) {
+            throw BusinessExceptionEnum.UNAUTHORIZED.getException();
         }
+        ServiceTicket serviceTicket = grantServiceTicket(tgt, CommonUtil.safeGetParameter(WebContextUtil.getRequest(), protocol.getServiceParameterName()));
+        CommonUtil.sendRedirect(WebContextUtil.getResponse(), CommonUtil.constructTicketUrl(serviceTicket.getService(), protocol.getArtifactParameterName(), serviceTicket.getId()));
+    }
+
+    public String login(UsernamePasswordCredentials credentials) {
+        HttpServletRequest request = WebContextUtil.getRequest();
+        HttpServletResponse response = WebContextUtil.getResponse();
+        AuthenticationInfo authenticationInfo = this.authentication(credentials);
+        TicketGrantingTicket ticketGrantingTicket = grantingTicketFactory.create(authenticationInfo.getPrincipals(), expireInMills);
         cookieManager.addGrantTicketCookie(request, response, ticketGrantingTicket.getId());
         if (credentials.isRememberMe()) {
             cookieManager.addRememberMeCookie(request, response, aesOperator == null ? credentials.getUsername() : aesOperator.encrypt(credentials.getUsername()));
         }
         cacheTemplate.valueSet(ticketGrantingTicket.getId(), ticketGrantingTicket, expireInMills, TimeUnit.MILLISECONDS);
-        CommonUtil.sendRedirect(response, urlToRedirect);
+        return ticketGrantingTicket.getId();
+    }
+
+    public String serviceTicket(String tgtId, String service) {
+        TicketGrantingTicket tgt = cacheTemplate.valueGet(tgtId, TicketGrantingTicketImpl.class);
+        if (tgt != null) {
+            return grantServiceTicket(tgt, service).getId();
+        }
+        return null;
+    }
+
+    public String proxyTicket(String tgtId, String service) {
+        TicketGrantingTicket tgt = cacheTemplate.valueGet(tgtId, TicketGrantingTicketImpl.class);
+        if (tgt != null) {
+            return grantProxyTicket(tgt, service).getId();
+        }
+        return null;
     }
 
     public TicketValidationDTO validate(String service, String ticket) {
-        ServiceTicketImpl serviceTicket = cacheTemplate.valueGet(ticket, ServiceTicketImpl.class);
+        ServiceTicket serviceTicket;
+        if (ticket.startsWith(ServiceTicket.PREFIX)) {
+            serviceTicket = cacheTemplate.valueGet(ticket, ServiceTicketImpl.class);
+        } else {
+            serviceTicket = cacheTemplate.valueGet(ticket, ProxyTicketImpl.class);
+        }
         boolean b = serviceTicket != null && serviceTicket.isValidFor(service);
         cacheTemplate.remove(ticket);
         if (b) {
@@ -112,11 +120,13 @@ public class CasService implements InitializingBean {
         return new TicketValidationDTO(false);
     }
 
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-        TicketGrantingTicket tgt = getTgt(request, response, false, TicketGrantingTicketImpl.class);
-        if (tgt == null) {
+    public void logout(String tgtId) {
+        TicketGrantingTicket tgt = getTgt(false, TicketGrantingTicketImpl.class);
+        if (tgt == null || !tgt.getId().equals(tgtId)) {
             return;
         }
+        HttpServletRequest request = WebContextUtil.getRequest();
+        HttpServletResponse response = WebContextUtil.getResponse();
         cacheTemplate.remove(tgt.getId());
         cookieManager.deleteCookie(request, response, cookieManager.getTicketGrantCookieName());
         cookieManager.deleteCookie(request, response, cookieManager.getRememberMeCookieName());
@@ -126,7 +136,8 @@ public class CasService implements InitializingBean {
         }
     }
 
-    protected <T extends TicketGrantingTicket> TicketGrantingTicket getTgt(HttpServletRequest request, HttpServletResponse response, boolean create, Class<T> tClass) {
+    public <T extends TicketGrantingTicket> TicketGrantingTicket getTgt(boolean create, Class<T> tClass) {
+        HttpServletRequest request = WebContextUtil.getRequest();
         Cookie cookie = cookieManager.getGrantTicketCookie(request);
         if (cookie == null) {
             if (create) {
@@ -135,7 +146,7 @@ public class CasService implements InitializingBean {
                     Principal principal = new SimplePrincipal(aesOperator != null ? aesOperator.decrypt(rememberMeCookie.getValue()) : rememberMeCookie.getValue());
                     TicketGrantingTicket grantingTicket = grantingTicketFactory.create(principal, expireInMills);
                     cacheTemplate.valueSet(grantingTicket.getId(), grantingTicket, expireInMills, TimeUnit.MILLISECONDS);
-                    cookieManager.addGrantTicketCookie(request, response, grantingTicket.getId());
+                    cookieManager.addGrantTicketCookie(request, WebContextUtil.getResponse(), grantingTicket.getId());
                     return grantingTicket;
                 }
             }
@@ -154,6 +165,15 @@ public class CasService implements InitializingBean {
         return serviceTicket;
     }
 
+    protected ServiceTicket grantProxyTicket(TicketGrantingTicket ticketGrantingTicket, String service) {
+        if (ticketGrantingTicket == null) {
+            throw BusinessExceptionEnum.TGT_MUST_PRESENT.getException();
+        }
+        ProxyTicket proxyTicket = ticketGrantingTicket.grantProxyTicket(idGenerator.nextId(), service, serviceTicketExpireInMills);
+        cacheTemplate.valueSet(proxyTicket.getId(), proxyTicket, serviceTicketExpireInMills, TimeUnit.MILLISECONDS);
+        return proxyTicket;
+    }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -169,12 +189,6 @@ public class CasService implements InitializingBean {
             grantingTicketFactory = new DefaultTicketGrantingTicketFactory(idGenerator);
         }
         if (casProperties != null) {
-            if (StringUtil.isNotBlank(casProperties.getCustomLoginUrl())) {
-                customLoginUrl = casProperties.getCustomLoginUrl();
-            }
-            if (StringUtil.isNotBlank(casProperties.getLoginSuccessUrl())) {
-                loginSuccessUrl = casProperties.getLoginSuccessUrl();
-            }
             if (StringUtil.isNotBlank(casProperties.getLogoutRequestParam())) {
                 logoutRequestParam = casProperties.getLogoutRequestParam();
             }

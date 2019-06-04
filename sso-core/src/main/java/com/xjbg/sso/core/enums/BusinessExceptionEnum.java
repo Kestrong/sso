@@ -17,6 +17,7 @@ public enum BusinessExceptionEnum {
     NO_HANDLER_SUPPORT_THIS_CREDENTIAL("B10005", "no handler can authenticate provided credentials"),
     USER_EXIST("B10005", "user already exist,please check your username,phone or mail"),
 
+    UNAUTHORIZED("401", "UNAUTHORIZED"),
     SYSTEM_ERROR("500", "INTERNAL SERVER ERROR.");
     private String code;
     private String msg;

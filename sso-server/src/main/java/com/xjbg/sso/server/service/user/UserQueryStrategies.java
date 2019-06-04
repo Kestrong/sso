@@ -11,7 +11,7 @@ import java.util.List;
  */
 public final class UserQueryStrategies {
     private List<UserQueryStrategy> userQueryStrategies;
-    private UserQueryStrategy defaultStrategy;
+    private UserQueryStrategy<String> defaultStrategy;
 
     public UserQueryStrategies(IUserService userService) {
         this.userQueryStrategies = new ArrayList<>();
@@ -24,7 +24,7 @@ public final class UserQueryStrategies {
         return userQueryStrategies.add(userQueryStrategy);
     }
 
-    public UserQueryStrategy getStrategy(String token) {
+    public <T> UserQueryStrategy getStrategy(T token) {
         for (UserQueryStrategy strategy : userQueryStrategies) {
             if (strategy.support(token)) {
                 return strategy;

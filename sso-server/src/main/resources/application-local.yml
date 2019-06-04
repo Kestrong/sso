@@ -4,6 +4,8 @@ env:
     /html/**: classpath:/static/html/
     /script/**: classpath:/static/script/
     /styles/**: classpath:/static/styles/
+    /swagger-ui.html: classpath:/META-INF/resources/
+    /webjars/**: classpath:/META-INF/resources/webjars/
 
 spring:
   thymeleaf:
@@ -32,6 +34,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8260/eureka/
+    enabled: true
   instance:
     prefer-ip-address: true
     metadata-map:

@@ -35,6 +35,6 @@ public class ServiceTicketImpl extends AbstractTicket implements ServiceTicket {
 
     @Override
     public boolean isValidFor(final String serviceProvide) {
-        return service.equals(serviceProvide);
+        return service != null && service.equals(serviceProvide);
     }
 }

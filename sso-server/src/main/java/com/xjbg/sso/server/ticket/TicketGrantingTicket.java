@@ -1,7 +1,5 @@
 package com.xjbg.sso.server.ticket;
 
-import com.xjbg.sso.server.authencation.Principal;
-
 import java.util.Map;
 
 /**
@@ -39,4 +37,14 @@ public interface TicketGrantingTicket extends Ticket {
      * @return the service ticket granted to a specific service for the principal of the TicketGrantingTicket
      */
     ServiceTicket grantServiceTicket(String id, String service, long serviceTicketExpireInMills);
+
+    /**
+     * Grant a ProxyTicket for a specific service.
+     *
+     * @param id
+     * @param targetService
+     * @param serviceTicketExpireInMills
+     * @return
+     */
+    ProxyTicket grantProxyTicket(String id, String targetService, long serviceTicketExpireInMills);
 }

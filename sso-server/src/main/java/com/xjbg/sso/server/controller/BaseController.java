@@ -9,7 +9,7 @@ import com.xjbg.sso.core.response.BaseResponse;
 public class BaseController {
     protected final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(getClass());
 
-    protected BaseResponse setResponse() {
+    protected <T> BaseResponse<T> setResponse() {
         return new BaseResponse<>();
     }
 

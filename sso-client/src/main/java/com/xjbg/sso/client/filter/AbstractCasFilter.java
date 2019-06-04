@@ -66,7 +66,11 @@ public abstract class AbstractCasFilter implements Filter {
      * @return the ticket if its found, null otherwise.
      */
     protected String retrieveTicketFromRequest(final HttpServletRequest request) {
-        return CommonUtil.safeGetParameter(request, this.protocol.getArtifactParameterName());
+        String parameter = CommonUtil.safeGetParameter(request, this.protocol.getArtifactParameterName());
+        if (StringUtil.isBlank(parameter)) {
+            parameter = request.getHeader(this.protocol.getArtifactParameterName());
+        }
+        return parameter;
     }
 
     protected final String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
@@ -88,5 +92,10 @@ public abstract class AbstractCasFilter implements Filter {
         } else {
             this.serverName = serverName;
         }
+    }
+
+    public final void setConstCasAssertion(HttpServletRequest request, Object value) {
+        request.setAttribute(CONST_CAS_ASSERTION, value);
+        request.getSession().setAttribute(CONST_CAS_ASSERTION, value);
     }
 }

@@ -2,7 +2,6 @@ package com.xjbg.sso.server.service.user;
 
 import com.xjbg.sso.core.dto.UserDTO;
 import com.xjbg.sso.core.request.UserRequest;
-import com.xjbg.sso.server.authencation.UsernamePasswordCredentials;
 import com.xjbg.sso.server.model.User;
 import com.xjbg.sso.server.service.base.IBaseService;
 

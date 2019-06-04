@@ -49,6 +49,11 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
         return serviceTicket;
     }
 
+    @Override
+    public ProxyTicket grantProxyTicket(String id, String targetService, long serviceTicketExpireInMills) {
+        return new ProxyTicketImpl(ProxyTicket.PREFIX + id, serviceTicketExpireInMills, targetService, this.id);
+    }
+
     /**
      * Normalize the path of a service by removing the query string and everything after a semi-colon.
      *

@@ -8,6 +8,7 @@ import com.xjbg.sso.core.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.ReflectionUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +29,14 @@ public class CasSingleLogoutFilter extends AbstractCasFilter {
     private String logoutParameterName = "logoutRequest";
     private SessionStorage sessionStorage;
     private boolean eagerlyCreateSessions = true;
+    private String sessionStorageClass;
 
     protected void initSessionStorage() {
-        sessionStorage = new HashMapSessionStorageImpl();
+        if (StringUtil.isBlank(sessionStorageClass)) {
+            sessionStorage = new HashMapSessionStorageImpl();
+        } else {
+            sessionStorage = ReflectionUtils.createInstanceIfPresent(sessionStorageClass, new HashMapSessionStorageImpl());
+        }
     }
 
     @Override
@@ -44,7 +50,7 @@ public class CasSingleLogoutFilter extends AbstractCasFilter {
         if (StringUtil.isNotBlank(createSessionEarlyParam)) {
             eagerlyCreateSessions = Boolean.valueOf(createSessionEarlyParam);
         }
-        initSessionStorage();
+        sessionStorageClass = filterConfig.getInitParameter(ConfigKeyConstants.SESSION_STORAGE_CLASS_KEY);
     }
 
     @Override

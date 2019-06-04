@@ -13,14 +13,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = CasProperties.CAS_PREFIX)
 public class CasProperties {
     public static final String CAS_PREFIX = "cas";
-    /**
-     * if service url not present,will redirect to this url after login success
-     */
-    private String loginSuccessUrl;
-    /**
-     * custom login url to redirect
-     */
-    private String customLoginUrl;
     private String logoutRequestParam;
     private Long ticketExpireInMills;
     private Long serviceTicketExpireInMills;
@@ -28,4 +20,12 @@ public class CasProperties {
     private String rememberMeCookieName;
     private Integer rememberCookieExpireInSeconds;
     private Integer ticketGrantCookieExpireInSeconds;
+    /**
+     * cross domains
+     */
+    private String allowOrigins;
+    /**
+     * safe urls allow to visit
+     */
+    private String whiteList;
 }
