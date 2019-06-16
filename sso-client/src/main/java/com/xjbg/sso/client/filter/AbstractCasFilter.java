@@ -52,6 +52,9 @@ public abstract class AbstractCasFilter implements Filter {
         encodeServiceUrl = StringUtil.isBlank(encodeServiceUrlParameter) ? true : Boolean.valueOf(encodeServiceUrlParameter);
         serverName = filterConfig.getInitParameter(ConfigKeyConstants.SERVER_NAME_KEY);
         service = filterConfig.getInitParameter(ConfigKeyConstants.SERVICE_KEY);
+        if (StringUtil.isBlank(serverName) && StringUtil.isBlank(service)) {
+            throw new IllegalArgumentException("serverName and service must at least configure one");
+        }
     }
 
     @Override

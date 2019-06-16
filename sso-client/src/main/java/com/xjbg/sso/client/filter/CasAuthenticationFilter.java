@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ public class CasAuthenticationFilter extends AbstractCasFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         casServerLoginUrl = filterConfig.getInitParameter(ConfigKeyConstants.CAS_SERVER_LOGIN_URL_KEY);
+        Assert.notNull(casServerLoginUrl, "casServerLoginUrl is null");
         String ignoreUrlPattern = filterConfig.getInitParameter(ConfigKeyConstants.IGNORE_URL_PATTERN_KEY);
         if (StringUtil.isNotBlank(ignoreUrlPattern)) {
             ignoreUrlPatterns = Arrays.asList(ignoreUrlPattern.split(","));

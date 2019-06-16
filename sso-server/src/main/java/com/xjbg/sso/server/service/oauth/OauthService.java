@@ -72,10 +72,15 @@ public class OauthService {
         } else if (ResponseType.TOKEN.getResponseType().equals(responseType)) {
             AccessTokenDTO accessToken = this.createAccessToken(scopeRetrieve(scope, application.getScope()), openId, null);
             sb.append("accessToken=").append(accessToken.getAccessToken())
-                    .append("&tokenType=bearer").append("&expiredIn=").append(accessToken.getExpiredIn())
-                    .append("&scope=").append(accessToken.getScope()).append("&openId=").append(openId);
+                    .append("&tokenType=bearer").append("&expiredIn=").append(accessToken.getExpiredIn());
+            if (StringUtil.isNotBlank(accessToken.getScope())) {
+                sb.append("&scope=").append(accessToken.getScope());
+            }
+            if (StringUtil.isNotBlank(openId)) {
+                sb.append("&openId=").append(openId);
+            }
             if (StringUtil.isNotBlank(state)) {
-                sb.append('&').append("state=").append(state);
+                sb.append("&state=").append(state);
             }
         } else {
             throw BusinessExceptionEnum.INVALID_RESPONSE_TYPE.getException();
@@ -90,6 +95,9 @@ public class OauthService {
         List<String> sourceScopes = Arrays.asList(source.split(StringUtil.COMMA));
         List<String> targetScopes = Arrays.asList(target.split(StringUtil.COMMA));
         List<String> result = CollectionUtil.filter(targetScopes, sourceScopes::contains);
+        if (CollectionUtil.isEmpty(result)) {
+            return StringUtil.EMPTY;
+        }
         return Joiner.on(StringUtil.COMMA).join(result);
     }
 
@@ -126,7 +134,7 @@ public class OauthService {
             if (scope == null) {
                 throw BusinessExceptionEnum.INVALID_CODE.getException();
             }
-            accessTokenDTO = this.createAccessToken(scope.getScope(), scope.getOpenId(), authRequest.getCode());
+            accessTokenDTO = this.createAccessToken(StringUtil.isBlank(authRequest.getScope()) ? scope.getScope() : this.scopeRetrieve(authRequest.getScope(), scope.getScope()), scope.getOpenId(), authRequest.getCode());
         } else if (GrandType.CLIENT_CREDENTIALS.getGrandType().equals(authRequest.getGrandType())) {
             accessTokenDTO = this.createAccessToken(this.scopeRetrieve(authRequest.getScope(), application.getScope()), null, null);
         } else {
@@ -140,7 +148,10 @@ public class OauthService {
         if (accessTokenDTO == null) {
             return false;
         }
-        if (StringUtil.isBlank(scope) || StringUtil.isBlank(accessTokenDTO.getScope())) {
+        if (StringUtil.isBlank(scope)) {
+            return true;
+        }
+        if (StringUtil.isBlank(accessTokenDTO.getScope())) {
             return false;
         }
         List<String> hasScopes = Arrays.asList(accessTokenDTO.getScope().split(StringUtil.COMMA));
