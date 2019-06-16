@@ -14,5 +14,6 @@ public class ConfigKeyConstants {
     public static final String LOGOUT_PARAMETER_KEY = "logoutParameter";
     public static final String EAGERLY_CREATE_SESSIONS_KEY = "eagerlyCreateSessions";
     public static final String SESSION_STORAGE_CLASS_KEY = "sessionStorageClass";
-    public static final String REDIRECT_AFTER_SUCCESS_KEY = "REDIRECT_AFTER_SUCCESS_KEY";
+    public static final String REDIRECT_AFTER_SUCCESS_KEY = "redirectAfterSuccess";
+    public static final String USE_SESSION_KEY = "useSession";
 }

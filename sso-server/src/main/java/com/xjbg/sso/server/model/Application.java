@@ -9,6 +9,12 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Application {
-// TODO: 2019/5/15
+public class Application extends BaseModel {
+    private String appId;
+    private String appKey;
+    private String applicationName;
+    private String status;
+    private String description;
+    private String scope;
+    private String redirectUri;
 }

@@ -28,6 +28,7 @@ import java.io.IOException;
 public class CasValidationFilter extends AbstractCasFilter {
     private CasApi casApi;
     private boolean redirectAfterSuccess = false;
+    private boolean useSession = true;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -38,6 +39,10 @@ public class CasValidationFilter extends AbstractCasFilter {
         String redirectAfterSuccess = filterConfig.getInitParameter(ConfigKeyConstants.REDIRECT_AFTER_SUCCESS_KEY);
         if (StringUtil.isNotBlank(redirectAfterSuccess)) {
             this.redirectAfterSuccess = Boolean.valueOf(redirectAfterSuccess);
+        }
+        String useSessionParam = filterConfig.getInitParameter(ConfigKeyConstants.USE_SESSION_KEY);
+        if (StringUtil.isNotBlank(useSessionParam)) {
+            this.useSession = Boolean.valueOf(useSessionParam);
         }
     }
 
@@ -60,7 +65,7 @@ public class CasValidationFilter extends AbstractCasFilter {
                 }
                 log.debug("Successfully authenticated user: {}", validateResponse.getData().getUsername());
 
-                super.setConstCasAssertion(request, validateResponse.getData().getUsername());
+                this.setConstCasAssertion(request, validateResponse.getData().getUsername());
                 if (redirectAfterSuccess) {
                     log.debug("Redirecting after successful ticket validation.");
                     CommonUtil.sendRedirect(response, serviceUrl);
@@ -75,4 +80,10 @@ public class CasValidationFilter extends AbstractCasFilter {
         filterChain.doFilter(request, response);
     }
 
+    private void setConstCasAssertion(HttpServletRequest request, Object value) {
+        request.setAttribute(CONST_CAS_ASSERTION, value);
+        if (useSession) {
+            request.getSession().setAttribute(CONST_CAS_ASSERTION, value);
+        }
+    }
 }

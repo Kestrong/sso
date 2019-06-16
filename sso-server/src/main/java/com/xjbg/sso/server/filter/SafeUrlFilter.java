@@ -1,5 +1,6 @@
 package com.xjbg.sso.server.filter;
 
+import com.xjbg.sso.core.util.CommonUtil;
 import com.xjbg.sso.core.util.StringUtil;
 
 import javax.servlet.*;
@@ -32,7 +33,7 @@ public class SafeUrlFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
-        String webPath = getBaseWebPath(request);
+        String webPath = CommonUtil.getBaseWebPath(request);
         if (whiteList.isEmpty()) {
             filterChain.doFilter(request, response);
         } else if (StringUtil.isNotBlank(webPath) && whiteList.contains(webPath)) {
@@ -40,14 +41,6 @@ public class SafeUrlFilter implements Filter {
         } else {
             response.sendError(403);
         }
-    }
-
-    protected String getBaseWebPath(final HttpServletRequest request) {
-        StringBuilder sb = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
-        if (request.getServerPort() != 80 || request.getServerPort() != 443) {
-            sb.append(':').append(request.getServerPort());
-        }
-        return sb.toString();
     }
 
     @Override

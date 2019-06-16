@@ -70,13 +70,9 @@ public class CasAuthenticationFilter extends AbstractCasFilter {
         if (CollectionUtil.isEmpty(ignoreUrlPatterns)) {
             return false;
         }
-        final StringBuffer urlBuffer = request.getRequestURL();
-        if (request.getQueryString() != null) {
-            urlBuffer.append("?").append(request.getQueryString());
-        }
-        final String requestUri = urlBuffer.toString();
+        final String requestURI = request.getRequestURI();
         for (String pattern : ignoreUrlPatterns) {
-            if (ignorePathMatcher.match(pattern, requestUri)) {
+            if (ignorePathMatcher.match(pattern, requestURI)) {
                 return true;
             }
         }

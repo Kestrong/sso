@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2017/12/25
  */
 public final class StringUtil {
+    public static final String EMPTY = "";
+    public static final String COMMA = ",";
 
     public static boolean isBlank(String string) {
         return StringUtils.isBlank(string);

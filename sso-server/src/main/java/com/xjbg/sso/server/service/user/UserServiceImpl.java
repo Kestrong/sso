@@ -69,5 +69,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserMapper> implement
         }
         return ConvertUtils.convert(user, UserDTO.class);
     }
+
+    @Override
+    public UserDTO userInfo(String openId) {
+        User user = mapper.selectOne(new QueryWrapper<User>().eq("open_id", openId));
+        return ConvertUtils.convert(user, UserDTO.class);
+    }
 }
 

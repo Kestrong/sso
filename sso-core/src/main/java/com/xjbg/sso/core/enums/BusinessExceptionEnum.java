@@ -16,9 +16,18 @@ public enum BusinessExceptionEnum {
     TGT_MUST_PRESENT("B10004", "Ticket grant ticket must present"),
     NO_HANDLER_SUPPORT_THIS_CREDENTIAL("B10005", "no handler can authenticate provided credentials"),
     USER_EXIST("B10005", "user already exist,please check your username,phone or mail"),
+    INVALID_STATUS("B10006", "invalid status"),
+    INVALID_APP_ID("B10007", "invalid application"),
+    INVALID_RESPONSE_TYPE("B10008", "invalid response type"),
+    INVALID_GRAND_TYPE("B1009", "invalid grand type"),
+    INVALID_CODE("B10010", "invalid code"),
+    INVALID_REDIRECT_URI("B10011", "redirect uri is inconsistent with background configuration"),
+
 
     UNAUTHORIZED("401", "UNAUTHORIZED"),
+    FORBIDDEN("403", "FORBIDDEN"),
     SYSTEM_ERROR("500", "INTERNAL SERVER ERROR.");
+
     private String code;
     private String msg;
 

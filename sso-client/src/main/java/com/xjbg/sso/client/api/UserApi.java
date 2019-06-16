@@ -5,9 +5,7 @@ import com.xjbg.sso.core.dto.UserDTO;
 import com.xjbg.sso.core.request.UserRequest;
 import com.xjbg.sso.core.response.BaseResponse;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author kesc
@@ -24,4 +22,13 @@ public interface UserApi {
      */
     @RequestMapping(value = "/user/register", method = RequestMethod.POST)
     BaseResponse<UserDTO> register(@RequestBody UserRequest userRequest);
+
+    /**
+     * user basic info
+     *
+     * @param openId
+     * @return
+     */
+    @RequestMapping(value = "/user/info", params = "accessToken", method = RequestMethod.GET)
+    BaseResponse<UserDTO> userInfo(@RequestParam(value = "openId") String openId);
 }

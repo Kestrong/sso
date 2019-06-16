@@ -35,16 +35,19 @@ public class CasConfig {
     }
 
     @Bean
-    public SingleSignOutHttpSessionListener singleSignOutHttpSessionListener(SessionStorage sessionStorage) {
+    public ServletListenerRegistrationBean singleSignOutHttpSessionListener(SessionStorage sessionStorage) {
         //使用hashmap时必须配置该监听器用于移除过期的session避免oom
         SingleSignOutHttpSessionListener sessionListener = new SingleSignOutHttpSessionListener();
         sessionListener.setSessionStorage(sessionStorage);
-        return sessionListener;
+        ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> listenerRegistrationBean = new ServletListenerRegistrationBean<SingleSignOutHttpSessionListener>();
+        listenerRegistrationBean.setListener(sessionListener);
+        return listenerRegistrationBean;
     }
 
     @Bean
     public FilterRegistrationBean casAuthenticationFilter() {
-        FilterRegistrationBean filter = getFilterBean(new CasAuthenticationFilter(), "webContextFilter");
+        FilterRegistrationBean filter = getFilterBean(new CasAuthenticationFilter(), "casAuthenticationFilter");
+        //该地址用于自动登录即判断是否存在tgt
         filter.addInitParameter(ConfigKeyConstants.CAS_SERVER_LOGIN_URL_KEY, "http://localhost:8080/sso-server/cas/login");
         filter.addInitParameter(ConfigKeyConstants.SERVICE_KEY, "http://localhost:8081/consume/hello");
         filter.setOrder(2);
@@ -77,10 +80,13 @@ public class CasConfig {
     }
 }
 ```
-cas登录流程：引导至登录页提交用户密码获取tgt->用tgt获取ticket->使用ticket调用接口。
+1. CasAuthenticationFilter的casServerLoginUrl需要配置为：/cas/login这样用户在访问其他系统时如
+果已经登录过才会自动登录，如果抛出UNAUTHORIZED的异常，再由客户端重定向到自定义登录页面。
+2. cas登录流程：引导至登录页提交用户密码获取tgt->用tgt获取ticket->使用ticket调用接口。
 （注：ticket只能使用一次，成功之后客户端会在session维持登录状态不需要重复获取）
-cas代理模式：代理端使用tgt获取proxyTicket，使用proxyTicket调用被代理端。
+3. cas代理模式：代理端每次调用接口前都需要使用tgt获取proxyTicket，使用proxyTicket调用被代理端。
 （注：为了兼容微服务和简化流程，rest风格的cas代理模式跟2.0协议有所不同）
-
+4. 返回{code:401,msg:UNAUTHORIZED}为未登录，HttpStatus=403为ticket无效或者不在访问白名单内，可
+以根据业务进行重定向到登录页面、重新获取ticket或者进行异常提示。
 ## todo
 oauth+openId 

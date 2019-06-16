@@ -214,4 +214,12 @@ public class CommonUtil {
             log.error(e.getMessage(), e);
         }
     }
+
+    public static String getBaseWebPath(final HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
+        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+            sb.append(':').append(request.getServerPort());
+        }
+        return sb.toString();
+    }
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjbg.sso.core.util.CollectionUtil;
 import com.xjbg.sso.core.util.CustomObjectMapper;
 import com.xjbg.sso.server.properties.EnvProperties;
+import com.xjbg.sso.server.service.oauth.AuthTokenInterceptor;
+import com.xjbg.sso.server.service.oauth.OauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,9 +34,19 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     private EnvProperties envProperties;
     @Autowired
     private LocalValidatorFactoryBean validator;
+    @Autowired
+    private OauthService oauthService;
+
+    @Bean
+    public AuthTokenInterceptor authTokenInterceptor() {
+        AuthTokenInterceptor authTokenInterceptor = new AuthTokenInterceptor();
+        authTokenInterceptor.setOauthService(oauthService);
+        return authTokenInterceptor;
+    }
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authTokenInterceptor()).addPathPatterns("/user/**");
         super.addInterceptors(registry);
     }
 

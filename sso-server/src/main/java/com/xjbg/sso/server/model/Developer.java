@@ -5,10 +5,10 @@ import lombok.Setter;
 
 /**
  * @author kesc
- * @since 2019/5/13
+ * @since 2019/6/13
  */
 @Getter
 @Setter
-public class Administrator extends BaseModel {
-    // TODO: 2019/5/15
+public class Developer extends BaseModel {
+    // TODO: 2019/6/13
 }

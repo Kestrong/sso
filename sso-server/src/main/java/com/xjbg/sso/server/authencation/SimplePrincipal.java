@@ -10,17 +10,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SimplePrincipal implements Principal {
-    private String principal;
+    private String id;
+    private Object principal;
 
     public SimplePrincipal() {
     }
 
-    public SimplePrincipal(String principal) {
-        this.principal = principal;
+    public SimplePrincipal(String id) {
+        this.id = id;
     }
 
-    @Override
-    public String getId() {
-        return principal;
+    public SimplePrincipal(String id, Object principal) {
+        this.id = id;
+        this.principal = principal;
     }
 }

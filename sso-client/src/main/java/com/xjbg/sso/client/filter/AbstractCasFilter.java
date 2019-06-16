@@ -93,9 +93,4 @@ public abstract class AbstractCasFilter implements Filter {
             this.serverName = serverName;
         }
     }
-
-    public final void setConstCasAssertion(HttpServletRequest request, Object value) {
-        request.setAttribute(CONST_CAS_ASSERTION, value);
-        request.getSession().setAttribute(CONST_CAS_ASSERTION, value);
-    }
 }

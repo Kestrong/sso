@@ -50,4 +50,12 @@ public interface IUserService extends IBaseService<User> {
      * @return
      */
     UserDTO register(UserRequest userRequest);
+
+    /**
+     * user basic info
+     *
+     * @param openId
+     * @return
+     */
+    UserDTO userInfo(String openId);
 }

@@ -20,4 +20,10 @@ public class DefaultFallbackUserApiImpl implements UserApi {
         log.warn("remote service [UserApi.register] is not available,return to fallback service");
         return null;
     }
+
+    @Override
+    public BaseResponse<UserDTO> userInfo(String openId) {
+        log.warn("remote service [UserApi.userInfo] is not available,return to fallback service");
+        return null;
+    }
 }
