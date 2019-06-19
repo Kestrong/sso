@@ -21,7 +21,7 @@ public final class LogJsonUtil {
 
     }
 
-    @JsonIgnoreProperties(value = {"password", "salt", "passwordHash"})
+    @JsonIgnoreProperties(value = {"tgtId", "password", "salt", "passwordHash", "appKey", "accessToken"})
     public static class MixPassword {
     }
 

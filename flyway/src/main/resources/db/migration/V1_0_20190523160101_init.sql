@@ -44,12 +44,13 @@ CREATE TABLE `application` (
   `status` varchar(16) DEFAULT 'blocked',
   `scope` varchar(256) DEFAULT NULL,
   `redirect_uri` varchar(256) DEFAULT NULL,
+  `grand_type` varchar(128) DEFAULT NULL,
   `del_flg` int(11) DEFAULT '1',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_id` (`app_id`),
   UNIQUE KEY `uk_app_name` (`application_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `application` (`id`, `application_name`, `app_id`, `app_key`, `description`, `status`,`scope`,`redirect_uri`, `del_flg`, `create_time`, `update_time`) VALUES ('1', 'test', '123456', 'abcdefg', NULL, 'normal','user_info','http://localhost:8081', '1', '2019-06-13 16:24:03', '2019-06-13 16:24:03');
+INSERT INTO `application` (`id`, `application_name`, `app_id`, `app_key`, `description`, `status`,`scope`,`redirect_uri`,`grand_type`, `del_flg`, `create_time`, `update_time`) VALUES ('1', 'test', '123456', 'abcdefg', NULL, 'normal','user_info','http://localhost:8081','authorization_code', '1', '2019-06-13 16:24:03', '2019-06-13 16:24:03');

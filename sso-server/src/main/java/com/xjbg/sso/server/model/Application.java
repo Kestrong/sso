@@ -17,4 +17,5 @@ public class Application extends BaseModel {
     private String description;
     private String scope;
     private String redirectUri;
+    private String grandType;
 }

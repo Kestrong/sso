@@ -54,7 +54,7 @@
   * [CasAuthenticationFilter](/sso-server/src/main/java/com/xjbg/sso/client/filter/CasAuthenticationFilter.java) 用于检查认证，其中`casServerLoginUrl`必须配置为`${sso-server-path}/cas/login`
   * [CasValidationFilter](/sso-server/src/main/java/com/xjbg/sso/client/filter/CasValidationFilter.java) 用于调用sso-server的cas服务校验ticket
 * **oauth**
-  * [AuthTokenInterceptor](/sso-server/src/main/java/com/xjbg/sso/client/interceptor/AuthTokenInterceptor.java) 配合 [AuthScope](/src/main/java/com/xjbg/sso/core/annonation/AuthScope.java)使用
+  * [AuthTokenInterceptor](/sso-server/src/main/java/com/xjbg/sso/client/interceptor/AuthTokenInterceptor.java) 配合 [AuthScope](/sso-server/src/main/java/com/xjbg/sso/core/annonation/AuthScope.java)使用
 
 **[可选配置]**
 
@@ -85,9 +85,12 @@ HttpStatus为401时为未授权或者权限（scope）不够
 
 | 返回码  |说明   |
 | :------------: | :------------: |
+|  B1009 |  应用不支持此授权模式或授权模式不对 |
 | B10011  | redirect uri的值与后台配置（注册时应用的回调uri）不一致  |
 |  401 |  未授权或者权限不够 |
 |  500 |  系统异常 |
 
+
 # Todo
-后续有需求或者有空继续`Developer`和`Administrator`功能的开发（应该是没空了。。）。
+1. 后续有需求或者有空继续`Developer`和`Administrator`功能的开发（应该是没空了。。）。
+2. 日志脱敏

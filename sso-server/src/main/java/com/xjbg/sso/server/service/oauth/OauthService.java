@@ -50,6 +50,16 @@ public class OauthService {
         }
     }
 
+    private void checkGrandType(String source, String target) {
+        if (StringUtil.isBlank(target) || StringUtil.isBlank(source)) {
+            throw BusinessExceptionEnum.INVALID_GRAND_TYPE.getException();
+        }
+        List<String> hasGrandTypes = Arrays.asList(source.split(StringUtil.COMMA));
+        if (!hasGrandTypes.contains(target)) {
+            throw BusinessExceptionEnum.INVALID_GRAND_TYPE.getException();
+        }
+    }
+
     public void authorize(String responseType,
                           String appId,
                           String redirectUri,
@@ -70,6 +80,7 @@ public class OauthService {
             }
             cacheTemplate.valueSet(code, new ScopeAndOpenIdDTO(openId, scopeRetrieve(scope, application.getScope())), 5L, TimeUnit.MINUTES);
         } else if (ResponseType.TOKEN.getResponseType().equals(responseType)) {
+            this.checkGrandType(application.getGrandType(), GrandType.IMPLICIT.getGrandType());
             AccessTokenDTO accessToken = this.createAccessToken(scopeRetrieve(scope, application.getScope()), openId, null);
             sb.append("accessToken=").append(accessToken.getAccessToken())
                     .append("&tokenType=bearer").append("&expiredIn=").append(accessToken.getExpiredIn());
@@ -122,6 +133,7 @@ public class OauthService {
         }
         AccessTokenDTO accessTokenDTO;
         if (GrandType.AUTHORIZATION_CODE.getGrandType().equals(authRequest.getGrandType())) {
+            this.checkGrandType(application.getGrandType(), GrandType.AUTHORIZATION_CODE.getGrandType());
             ScopeAndOpenIdDTO scopeAndOpenIdDTO = cacheTemplate.valueGet(authRequest.getCode(), ScopeAndOpenIdDTO.class);
             if (scopeAndOpenIdDTO == null) {
                 throw BusinessExceptionEnum.INVALID_CODE.getException();
@@ -130,12 +142,14 @@ public class OauthService {
             accessTokenDTO = this.createAccessToken(scopeAndOpenIdDTO.getScope(), scopeAndOpenIdDTO.getOpenId(), UUID.randomUUID().toString());
             cacheTemplate.valueSet(accessTokenDTO.getRefreshToken(), scopeAndOpenIdDTO, 30L, TimeUnit.DAYS);
         } else if (GrandType.REFRESH_TOKEN.getGrandType().equals(authRequest.getGrandType())) {
+            this.checkGrandType(application.getGrandType(), GrandType.REFRESH_TOKEN.getGrandType());
             ScopeAndOpenIdDTO scope = cacheTemplate.valueGet(authRequest.getCode(), ScopeAndOpenIdDTO.class);
             if (scope == null) {
                 throw BusinessExceptionEnum.INVALID_CODE.getException();
             }
             accessTokenDTO = this.createAccessToken(StringUtil.isBlank(authRequest.getScope()) ? scope.getScope() : this.scopeRetrieve(authRequest.getScope(), scope.getScope()), scope.getOpenId(), authRequest.getCode());
         } else if (GrandType.CLIENT_CREDENTIALS.getGrandType().equals(authRequest.getGrandType())) {
+            this.checkGrandType(application.getGrandType(), GrandType.CLIENT_CREDENTIALS.getGrandType());
             accessTokenDTO = this.createAccessToken(this.scopeRetrieve(authRequest.getScope(), application.getScope()), null, null);
         } else {
             throw BusinessExceptionEnum.INVALID_GRAND_TYPE.getException();
