@@ -43,24 +43,24 @@
 </dependency>
 ```
 **api**
-* [CasApi](/sso-server/src/main/java/com/xjbg/sso/client/api/CasApi.java)
-* [OauthApi](/sso-server/src/main/java/com/xjbg/sso/client/api/OauthApi.java)
-* [UserApi](/sso-server/src/main/java/com/xjbg/sso/client/api/UserApi.java)
+* [CasApi](/sso-client/src/main/java/com/xjbg/sso/client/api/CasApi.java)
+* [OauthApi](/sso-client/src/main/java/com/xjbg/sso/client/api/OauthApi.java)
+* [UserApi](/sso-client/src/main/java/com/xjbg/sso/client/api/UserApi.java)
 
 **[必选配置]**
 
 * **cas** 配置filter先后顺序如下
-  * [CasSingleLogoutFilter](/sso-server/src/main/java/com/xjbg/sso/client/filter/CasSingleLogoutFilter.java) 用于单点登出
-  * [CasAuthenticationFilter](/sso-server/src/main/java/com/xjbg/sso/client/filter/CasAuthenticationFilter.java) 用于检查认证，其中`casServerLoginUrl`必须配置为`${sso-server-path}/cas/login`
-  * [CasValidationFilter](/sso-server/src/main/java/com/xjbg/sso/client/filter/CasValidationFilter.java) 用于调用sso-server的cas服务校验ticket
+  * [CasSingleLogoutFilter](/sso-client/src/main/java/com/xjbg/sso/client/filter/CasSingleLogoutFilter.java) 用于单点登出
+  * [CasAuthenticationFilter](/sso-client/src/main/java/com/xjbg/sso/client/filter/CasAuthenticationFilter.java) 用于检查认证，其中`casServerLoginUrl`必须配置为`${sso-server-path}/cas/login`
+  * [CasValidationFilter](/sso-client/src/main/java/com/xjbg/sso/client/filter/CasValidationFilter.java) 用于调用sso-server的cas服务校验ticket
 * **oauth**
-  * [AuthTokenInterceptor](/sso-server/src/main/java/com/xjbg/sso/client/interceptor/AuthTokenInterceptor.java) 配合 [AuthScope](/sso-server/src/main/java/com/xjbg/sso/core/annonation/AuthScope.java)使用
+  * [AuthTokenInterceptor](/sso-client/src/main/java/com/xjbg/sso/client/interceptor/AuthTokenInterceptor.java) 配合 [AuthScope](/sso-core/src/main/java/com/xjbg/sso/core/annonation/AuthScope.java)使用
 
 **[可选配置]**
 
 * **cas**
-  * [SessionStorage](/sso-server/src/main/java/com/xjbg/sso/client/session/SessionStorage.java) 用于保存ticket和session的关系，默认用hashmap维护session，**用于单点登出**，可选方案(基于redis)：spring-session和shiro-session
-  * [SingleSignOutHttpSessionListener](/sso-server/src/main/java/com/xjbg/sso/client/session/SingleSignOutHttpSessionListener.java) 使用**hashmap**的**SessionStorage**时必须配置该监听器用于移除过期的session避免oom
+  * [SessionStorage](/sso-client/src/main/java/com/xjbg/sso/client/session/SessionStorage.java) 用于保存ticket和session的关系，默认用hashmap维护session，**用于单点登出**，可选方案(基于redis)：spring-session和shiro-session
+  * [SingleSignOutHttpSessionListener](/sso-client/src/main/java/com/xjbg/sso/client/session/SingleSignOutHttpSessionListener.java) 使用**hashmap**的**SessionStorage**时必须配置该监听器用于移除过期的session避免oom
 
 # Cas
 
@@ -79,7 +79,7 @@ HttpStatus为401时为未授权或者权限（scope）不够
 | 密码模式（resource owner password credentials）  | ✔  |  **×** |
 | 客户端模式（client credentials）  |**×**   |  ✔ |
 
-**(注：grandType和responseType见枚举类：[GrandType](/sso-server/src/main/java/com/xjbg/sso/core/enums/GrandType.java)和[ResponseType](/sso-server/src/main/java/com/xjbg/sso/core/enums/ResponseType.java))**
+**(注：grandType和responseType见枚举类：[GrandType](/sso-core/src/main/java/com/xjbg/sso/core/enums/GrandType.java)和[ResponseType](/sso-core/src/main/java/com/xjbg/sso/core/enums/ResponseType.java))**
 
 # Response Code
 
