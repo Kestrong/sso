@@ -16,16 +16,26 @@ import java.util.List;
  * @since 2019/5/28
  */
 public class SafeUrlFilter implements Filter {
+    public static final String WHITE_LIST_KEY = "whiteList";
+    public static final String BLACK_LIST_KEY = "blackList";
     private List<String> whiteList;
+    private List<String> blackList;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        String whiteTableString = filterConfig.getInitParameter("whiteList");
+        String whiteTableString = filterConfig.getInitParameter(WHITE_LIST_KEY);
+        String blackTableString = filterConfig.getInitParameter(BLACK_LIST_KEY);
         if (StringUtil.isNotBlank(whiteTableString)) {
-            String[] whiteTableArray = whiteTableString.split(",");
+            String[] whiteTableArray = whiteTableString.split(StringUtil.COMMA);
             whiteList = Arrays.asList(whiteTableArray);
         } else {
             whiteList = Collections.emptyList();
+        }
+        if (StringUtil.isNotBlank(blackTableString)) {
+            String[] blackTableArray = blackTableString.split(StringUtil.COMMA);
+            blackList = Arrays.asList(blackTableArray);
+        } else {
+            blackList = Collections.emptyList();
         }
     }
 
@@ -34,12 +44,12 @@ public class SafeUrlFilter implements Filter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
         String webPath = CommonUtil.getBaseWebPath(request);
-        if (whiteList.isEmpty()) {
-            filterChain.doFilter(request, response);
-        } else if (StringUtil.isNotBlank(webPath) && whiteList.contains(webPath)) {
-            filterChain.doFilter(request, response);
-        } else {
+        if (!blackList.isEmpty() && blackList.contains(webPath)) {
             response.sendError(403);
+        } else if (!whiteList.isEmpty() && !whiteList.contains(webPath)) {
+            response.sendError(403);
+        } else {
+            filterChain.doFilter(request, response);
         }
     }
 

@@ -4,6 +4,8 @@ import com.xjbg.sso.core.util.StringUtil;
 import com.xjbg.sso.server.filter.CrosFilter;
 import com.xjbg.sso.server.filter.SafeUrlFilter;
 import com.xjbg.sso.server.properties.CasProperties;
+import com.xjbg.sso.server.properties.SafeUrlProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2019/5/28
  */
 @Configuration
+@EnableConfigurationProperties(value = {SafeUrlProperties.class})
 public class FilterConfig {
 
     @Bean
@@ -33,12 +36,15 @@ public class FilterConfig {
     }
 
     @Bean
-    public FilterRegistrationBean safeUrlFilter(CasProperties casProperties) {
+    public FilterRegistrationBean safeUrlFilter(SafeUrlProperties safeUrlProperties) {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new SafeUrlFilter());
         registrationBean.setName("safeUrlFilter");
-        if (StringUtil.isNotBlank(casProperties.getWhiteList())) {
-            registrationBean.addInitParameter("whiteList", casProperties.getWhiteList());
+        if (StringUtil.isNotBlank(safeUrlProperties.getWhiteList())) {
+            registrationBean.addInitParameter(SafeUrlFilter.WHITE_LIST_KEY, safeUrlProperties.getWhiteList());
+        }
+        if (StringUtil.isNotBlank(safeUrlProperties.getBlackList())) {
+            registrationBean.addInitParameter(SafeUrlFilter.BLACK_LIST_KEY, safeUrlProperties.getBlackList());
         }
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(1);

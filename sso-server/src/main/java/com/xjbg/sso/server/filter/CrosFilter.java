@@ -29,7 +29,7 @@ public class CrosFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         String allowOrigins = filterConfig.getInitParameter("allowOrigins");
         if (StringUtil.isNotBlank(allowOrigins)) {
-            this.allowOrigins = Arrays.asList(allowOrigins.split(","));
+            this.allowOrigins = Arrays.asList(allowOrigins.split(StringUtil.COMMA));
         }
         this.allowMethods = filterConfig.getInitParameter("allowMethods");
         this.allowCredentials = filterConfig.getInitParameter("allowCredentials");
