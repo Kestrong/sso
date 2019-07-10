@@ -17,7 +17,7 @@ import com.xjbg.sso.server.authencation.AuthenticationManager;
 import com.xjbg.sso.server.authencation.UsernamePasswordCredentials;
 import com.xjbg.sso.server.model.Application;
 import com.xjbg.sso.server.service.application.IApplicationService;
-import com.xjbg.sso.server.util.WebContextUtil;
+import com.xjbg.sso.core.util.WebContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

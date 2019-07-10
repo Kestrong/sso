@@ -12,7 +12,7 @@ import com.xjbg.sso.server.cookie.CasCookieManager;
 import com.xjbg.sso.server.cookie.ICasCookieManager;
 import com.xjbg.sso.server.properties.CasProperties;
 import com.xjbg.sso.server.ticket.*;
-import com.xjbg.sso.server.util.WebContextUtil;
+import com.xjbg.sso.core.util.WebContextUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;

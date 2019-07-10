@@ -1,4 +1,4 @@
-package com.xjbg.sso.server.util;
+package com.xjbg.sso.core.util;
 
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

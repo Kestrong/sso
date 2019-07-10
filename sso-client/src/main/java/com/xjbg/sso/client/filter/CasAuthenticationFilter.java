@@ -69,12 +69,17 @@ public class CasAuthenticationFilter extends AbstractCasFilter {
 
 
     protected boolean isRequestUrlExcluded(final HttpServletRequest request) {
+        if ("OPTIONS".equals(request.getMethod().toUpperCase())) {
+            return true;
+        }
         if (CollectionUtil.isEmpty(ignoreUrlPatterns)) {
             return false;
         }
         final String requestURI = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        contextPath = "/".equals(contextPath) ? StringUtil.EMPTY : contextPath;
         for (String pattern : ignoreUrlPatterns) {
-            if (ignorePathMatcher.match(pattern, requestURI)) {
+            if (ignorePathMatcher.match(contextPath + pattern, requestURI)) {
                 return true;
             }
         }
